@@ -1,0 +1,34 @@
+.kassa2 {
+    display: flex;
+    position: center;
+    right: 0%;
+    justify-content: flex-end;
+    background-color: darkgreen;
+    height: 70vh;
+    width: 40vw;
+}
+
+#keypad{
+    position: right;
+    background-color: black;
+    margin-left: 15vw;
+    margin-top: 10vh;
+    width: 40vw;
+    height: 70vh;
+    border-color: grey;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 2%;
+}
+ 
+.keypads{
+   display: inline;
+   width: 28%;
+   height: 19%;
+   margin-top: 5%;
+   margin-left: 3%;
+   border-color: grey;
+   border-width: 1px;
+   border-style: solid;
+   border-radius: 2%;
+} 

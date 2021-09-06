@@ -1,0 +1,92 @@
+kassa.php
+<?php
+include("inc/database.php");
+include("inc/menu.php");
+if(isset($_POST['number'])== FALSE) {
+        $_POST['number'] = NULL;
+}
+?>
+<div id="k2">
+    <form class="login" method="post">
+        <input type="hidden" name="form" value="0">
+        <input type="search" placeholder="productcode" size="70%">
+        <input type="number" placeholder="aantal" size="30%">
+        <input type="text" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" />
+        <input type="submit" value="toevoegen"><br>    
+    </form>
+</div>
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_POST['form'] == 0) {
+            if (isset($_SESSION['bon'])) {
+                $search = $_POST['search'];
+                $aantal = $_POST['number'];
+                $bonId = $_SESSION['bon'];
+                $qeury = mysqli_query($dbconn, "INSERT INTO bon_regel (bon_id, artikel_id, sub_totaal, aantal) VALUES($bonId, $search, 1, $aantal)");
+                $query =  mysqli_query($dbconn, "SELECT aantal FROM vooraad WHERE artikelnummer = '$search'");
+                $row = mysqli_fetch_array($query);
+                $aantal = $row['aantal'] - $aantal;
+                $qeury = mysqli_query($dbconn, "UPDATE vooraad set aantal='{$aantal}' where artikelnummer={$search}"); 
+            } else {
+            $inlognaam = $_SESSION['inlognaam'];
+            $query = mysqli_query($dbconn, "SELECT id FROM gebruiker WHERE inlognaam = '$inlognaam'");
+            $row = mysqli_fetch_array($query);
+            $row = $row['id'];
+            $search = $_POST['search'];
+            $aantal = $_POST['number'];
+            $qeury = mysqli_query($dbconn, "INSERT INTO bon (gebruiker_id) VALUES('$row')");
+            $qeury = mysqli_query($dbconn, "SELECT bon_id FROM bon ORDER BY datum DESC LIMIT 1");
+            $row = mysqli_fetch_array($qeury);
+            $_SESSION['bon'] = $row['bon_id'];
+            $bonId = $_SESSION['bon'];
+            $qeury = mysqli_query($dbconn, "INSERT INTO bon_regel (bon_id, artikel_id, sub_totaal, aantal) VALUES($bonId, $search, 1, $aantal)");
+            }
+    } else { 
+       $_SESSION['bon'] = NULL;
+    }
+include("inc/footer.php");
+?>
+<div id="k1">
+<?php
+if ($_SESSION['bon'] != NULL) {
+    ?>
+    <table id="customers">
+        <tr>
+            <th>artikel id</th>
+            <th>subtotaal</th>
+            <th>aantal</th>
+        </tr>
+    </table>
+        <?php
+}
+if (isset($_SESSION['bon'])) {
+    $bonId = $_SESSION['bon'];
+    $query = mysqli_query($dbconn, "SELECT artikel_id, sub_totaal, aantal FROM bon_regel WHERE bon_id = '$bonId'");
+    $aantal = mysqli_num_rows($query);
+    $contentTable="";
+    if ($aantal>0){ //controle of er wel wat opgehaald wordt...
+        while ($row = mysqli_fetch_array($query)) {
+            $contentTable.="<tr>
+            <td>".$row['artikel_id']."</td>
+            <td>".$row['sub_totaal']."</td>
+            <td>".$row['aantal']."</td>
+        </tr>";
+        }
+    }
+    else {
+        $contentTable='<tr>
+                            <td colspan="9">Geen gegevens om op te halen...</td>
+                        </tr>';
+    }
+
+    $contentTable.='</table><br>';
+    echo $contentTable;
+};
+?>
+</div>
+<form class="login" method="post">
+        <input type="hidden" name="form" value="1">
+        <input type="submit" value="afrekenen" class="afrekenen"><br>
+</form>
+<?php
+?>
